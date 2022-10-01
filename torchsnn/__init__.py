@@ -1,8 +1,10 @@
-from torchsnn.neurons import (
-    base_neurons, if_neurons
+from torchsnn import (
+    neurons,
+    networks,
+    # learning
 )
 
 __all__ = [
-    "BaseNeurons", 
-    "IFNeurons"
+    "neurons",
+    "networks",
 ]
