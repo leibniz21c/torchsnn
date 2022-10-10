@@ -21,25 +21,17 @@ class LinearSynapses(BaseSynapses):
         )
         for param in self.synapses.parameters():
             param.requires_grad = False
-        self.synapses.weight.data *= self.adj_mat
+
+        if self.adj_mat != None:
+            self.synapses.weight.data *= self.adj_mat
 
     @property
     def weight(self):
-        return self._weight
+        return self.synapses.weight.data
 
     @weight.setter
-    def weight(self, mat: torch.FloatTensor):
-        num_source_neurons = self.source_neurons.num_neurons
-        num_target_neurons = self.target_neurons.num_neurons
-
-        if len(mat.shape) != 2:
-            raise ValueError(f"Length of shape of weight matrix must be {2}.")
-
-        if num_target_neurons != mat.shape[0] or num_source_neurons != mat.shape[1]:
-            raise ValueError(
-                f"Weight matrix must be ({num_target_neurons}, {num_source_neurons}) shape, but got ({mat.shape[0]}, {mat.shape[1]})."
-            )
-        self._weight = mat
+    def weight(self, value: torch.Tensor):
+        self.synapses.weight.data = value
 
     def forward(self, x):
         return self.synapses(x)

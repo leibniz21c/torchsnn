@@ -4,14 +4,30 @@ from typing import Union
 
 
 class BaseNeurons(nn.Module):
+    r"""Base neurons type.
+    If you want to create and use a custom neuron, you must inherit this class.
+
+    Args:
+        num_neurons (int): number of neurons.
+        init_v_thres (float): initial threshold.
+            If the membrane voltage exceeds that value, the neuron fires.
+            The initial threshold of all neurons is initialized to that value.
+        init_v_reset (float): initial reset potential.
+            If the neuron fires, the membrane voltage is initialized to the corresponding value.
+        init_refrac (int): initial absolute refractory period.
+            After a neuron fires, it cannot fire again during that period.
+            The units are milliseconds(ms).
+        dt (int): default unit of calculation time.
+        spike_scaling (int, float): spike voltage.
+    """
+
     def __init__(
         self,
         num_neurons: int,
         init_v_thres: float = 1.0,
         init_v_reset: float = 0.0,
-        init_refrac: int = 5.0,
+        init_refrac: int = 5,
         dt: int = 1,
-        spike_scaling: Union[int, float] = 1,
     ):
         super().__init__()
         self.__running_instance = False
@@ -19,7 +35,6 @@ class BaseNeurons(nn.Module):
         # Setup
         self.num_neurons = num_neurons
         self.dt = dt
-        self.spike_scaling = spike_scaling
 
         self.init_v_thres = init_v_thres
         self.init_v_reset = init_v_reset
@@ -52,17 +67,6 @@ class BaseNeurons(nn.Module):
             self._dt = value
         else:
             raise ValueError(f"dt must be a positive integer, not {value}.")
-
-    @property
-    def spike_scaling(self):
-        return self._spike_scaling
-
-    @spike_scaling.setter
-    def spike_scaling(self, value: Union[int, float]):
-        if value > 0:
-            self._spike_scaling = value
-        else:
-            raise ValueError(f"spike_scaling must be a positive number, not {value}.")
 
     @property
     def init_v_thres(self):
@@ -105,10 +109,10 @@ class BaseNeurons(nn.Module):
         self.v[spikes] = self.v_reset[spikes]
         self.timer_ref[spikes] = 0
 
-        return spikes.float() * self.spike_scaling
+        return spikes.float()
 
     def reset(self):
-        self.register_buffer("v", torch.zeros(self.num_neurons))
+        self.register_buffer("v", torch.zeros(self.num_neurons) + self.init_v_reset)
         self.register_buffer(
             "v_thres", torch.zeros(self.num_neurons) + self.init_v_thres
         )

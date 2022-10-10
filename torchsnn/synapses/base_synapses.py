@@ -6,6 +6,18 @@ from torchsnn.neurons import BaseNeurons
 
 
 class BaseSynapses(nn.Module):
+    r"""Base synapses type.
+    If you want to create and use a custom synapses, you must inherit this class.
+
+    Args:
+        source_neurons (BaseNeurons): source neurons.
+        target_neurons (BaseNeurons): target neurons.
+        adj_mat (torch.BoolTensor, optional): connection topology.
+            If ``adj_mat`` is ``None``, synapses have fully connected topology.
+        learner (BaseLearner, optional): STDP learner,
+            If ``learner`` is ``None``, this layer is freezed.
+    """
+
     def __init__(
         self,
         source_neurons: BaseNeurons,
@@ -66,13 +78,9 @@ class BaseSynapses(nn.Module):
             self.reset()
 
     def forward(self, x):
+        if self.adj_mat == None:
+            return x
         return self.adj_mat * x
 
     def reset(self):
         pass
-
-    def __repr__(self):
-        """
-        TODO
-        """
-        return "Synapses\n"

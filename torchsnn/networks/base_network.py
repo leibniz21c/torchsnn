@@ -1,5 +1,4 @@
 import torch.nn as nn
-from torchsnn.neurons import BaseNeurons
 
 
 class BaseNetwork(nn.Module):
@@ -10,6 +9,4 @@ class BaseNetwork(nn.Module):
         raise NotImplementedError()
 
     def reset(self):
-        for component in self.children():
-            if isinstance(component, BaseNeurons):
-                component.reset()
+        raise NotImplementedError()
